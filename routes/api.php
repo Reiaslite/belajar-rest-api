@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController; // panggil controller AuthController
 use App\Http\Controllers\AdminController; // panggil controller AdminController
 use App\Http\Controllers\RecipeController; // panggil controller RecipeController
+use App\Http\Controllers\AuthorController; // panggil controller RecipeController
 
 
 Route::post('register', [AuthController::class,'register']);
@@ -14,6 +15,8 @@ Route::get('recipes', [RecipeController::class,'show_recipes']);
 // Route::post('recipes/get-recipe', [RecipeController::class,'recipe_by_id']);
 Route::get('recipes/get-recipe/{id}', [RecipeController::class,'recipe_by_id']);
 Route::post('recipes/rating', [RecipeController::class,'rating']);
+
+Route::get('author', [AuthorController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +51,10 @@ Route::middleware(['admin.api'])->prefix('admin')->group(function(){
     Route::get('unpublish/{id}',[AdminController::class,'unpublish_recipe']);
 
     Route::get('dashboard',[AdminController::class,'dashboard']);
+
+    // soal uts
+    Route::get('show-recipes',[AdminController::class,'show_recipe']);
+    Route::get('show-recipes/get-recipe/{id}',[AdminController::class,'recipe_by_id']);
 });
 
 Route::middleware('user.api')->prefix('user')->group(function(){

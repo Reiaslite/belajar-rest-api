@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User; // panggil model User
 use App\Models\Log;
 use App\Models\Recipe; // panggil model Recipe
+use App\Models\RecipeView;
 use App\Models\Tool;   // panggil model Tool
 use App\Models\Ingredient; // panggil model Ingredients
 use Illuminate\Support\Facades\DB; // panggil query builder
+use Illuminate\Support\Facades\Auth; // panggil library auth
+use Illuminate\Http\Exceptions\HttpsResponseException; // panggil library HttpsResponseException
 
 class AdminController extends Controller
 {
@@ -395,5 +398,69 @@ class AdminController extends Controller
         ],422); 
     }
 
+    public function show_recipe(){
+        $recipe = Recipe::with('user')->get();
 
+        $data = [];
+        foreach($recipe as $recipes){
+            array_push($data,[
+                'idresep' => $recipes->idresep,
+                'judul' => $recipes->judul,
+                'status_resep' => $recipes->status_resep,
+                'user_email' => $recipes->user_email,
+                'updated_at' => $recipes->updated_at,
+                'gambar' => $recipes->gambar
+            ]);
+        }
+        return response()->json([
+            "message" => "success",
+            "data" => $data
+        ],200);
+    }
+
+    public function recipe_by_id(Request $request, $id){
+        $validator = Validator::make($request->all(),[
+            'idresep' => 'required',
+            'email' => 'email'
+        ]);
+
+        if($validator->fails()){
+            return messageError($validator->messages()->toArray());
+        }
+
+        $recipe = Recipe::where('idresep', $id)->get();
+
+        $tools = Tool::where('resep_idresep', $request->idresep)->get();
+        $ingredients = Ingredient::where('resep_idresep', $request->idresep)->get();
+        
+        $data = [];
+        foreach($recipe as $recipes){
+            array_push($data, [
+                'idresep' => $recipes->idresep,
+                'judul' => $recipes->judul,
+                'gambar' => url($recipes->gambar),
+                'cara_pembuatan' => $recipes->cara_pembuatan,
+                'video' => $recipes->video,
+                'updated_at' => $recipes->updated_at,
+                'nama' => $recipes->user->nama
+            ]);
+        }
+
+        $recipeData = [
+            'recipe' => $data,
+            'tools' => $tools,
+            'ingredients' => $ingredients
+        ];
+
+        RecipeView::create([
+            'email' => $request->email,
+            'date' => now(),
+            'resep_idresep' => $request->idresep
+        ]);
+
+        return response()->json([
+            "message" => "success",
+            "data" => $recipeData
+        ],200);
+    }
 }
