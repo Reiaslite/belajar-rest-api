@@ -70,6 +70,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 # Instruction
 - composer install
 - copy .env.example to .env
+- add JWT_SECRET_KEY = (bebas) in .env
 - change db name
 - php artisan migrate
 - php artisan db:seed
